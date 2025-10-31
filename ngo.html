@@ -1,0 +1,415 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>SurplusShare — Reduce food waste</title>
+  <meta name="description" content="SurplusShare: connect restaurants with buyers & donation centers to share surplus food in real-time." />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    /* --- Design tokens --- */
+    :root{
+      --bg:#f6f7fb; --card:#ffffff; --muted:#6b7280; --accent:#0ea5a4; --accent-2:#06b6d4; --danger:#ef4444;
+      --glass: rgba(255,255,255,0.7);
+      --shadow-lg: 0 12px 30px rgba(8,15,26,0.12);
+      --radius:14px;
+      font-family: Poppins, Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0;background: linear-gradient(180deg, #fffaf0 0%, #f1f5f9 40%, #eef2ff 100%); color:#071127; -webkit-font-smoothing:antialiased}
+    .container{max-width:1200px;margin:28px auto;padding:20px}
+
+    header{display:flex;gap:18px;align-items:center;justify-content:space-between}
+    .brand{display:flex;gap:12px;align-items:center}
+    .logo{width:64px;height:64px;border-radius:14px;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:flex;align-items:center;justify-content:center;color:white;font-weight:800;font-size:22px;box-shadow:var(--shadow-lg)}
+    h1{margin:0;font-size:20px}
+    p.lead{margin:0;color:var(--muted);font-size:13px}
+
+    /* hero */
+    .hero{margin-top:18px;border-radius:18px;overflow:hidden;position:relative;box-shadow:var(--shadow-lg)}
+    .hero .bg{height:220px;background-image: url('https://www.iceland-highlights.com/wp-content/uploads/2018/03/vegetarian-restaurants-in-reykjavik-iceland-960x636.jpg'); background-size:cover;background-position:center;filter:contrast(1.05) saturate(1.05)}
+    .hero .overlay{position:absolute;inset:0;background:linear-gradient(180deg, rgba(4,8,15,0.18), rgba(4,8,15,0.06));display:flex;align-items:flex-end;padding:22px}
+    .hero h2{color:white;margin:0;font-size:26px;letter-spacing:-0.3px}
+    .hero p{color:rgba(255,255,255,0.95);margin:6px 0 0}
+
+    /* layout */
+    .grid{display:grid;grid-template-columns:380px 1fr;gap:22px;margin-top:20px}
+    @media (max-width:980px){.grid{grid-template-columns:1fr}}
+
+    .card{background:var(--card);padding:18px;border-radius:var(--radius);box-shadow:0 6px 18px rgba(9,20,34,0.06);border:1px solid rgba(15,23,42,0.03)}
+    .small{font-size:13px;color:var(--muted)}
+
+    label{display:block;font-weight:600;margin:10px 0 6px;font-size:13px}
+    input[type=text], input[type=datetime-local], input[type=number], textarea, select{
+      width:100%;padding:12px;border-radius:10px;border:1px solid #edf2f7;background:transparent;font-size:14px;box-shadow:inset 0 1px 0 rgba(255,255,255,0.6)
+    }
+    textarea{min-height:84px}
+
+    button{cursor:pointer;border:0;padding:10px 14px;border-radius:10px;background:linear-gradient(90deg,var(--accent),var(--accent-2));color:white;font-weight:700;transition:transform .12s ease, box-shadow .12s ease}
+    button:hover{transform:translateY(-3px);box-shadow:0 12px 30px rgba(14,165,164,0.12)}
+    .ghost{background:transparent;border:1px solid #eef2ff;color:var(--muted);padding:10px 12px}
+    .danger{background:var(--danger)}
+
+    .controls{display:flex;gap:8px;align-items:center}
+    .search{flex:1}
+
+    .list{margin-top:16px;display:grid;gap:14px}
+    .item{display:flex;gap:14px;padding:12px;border-radius:12px;align-items:flex-start;background:linear-gradient(180deg,#ffffff, #fbfdff);border:1px solid rgba(10,20,40,0.04);transition:transform .12s ease, box-shadow .12s ease}
+    .item:hover{transform:translateY(-6px);box-shadow:0 18px 40px rgba(10,20,40,0.06)}
+
+    .thumb{width:96px;height:72px;border-radius:10px;background:#eee;flex-shrink:0;background-size:cover;background-position:center;box-shadow:0 6px 20px rgba(12,20,40,0.06)}
+    .meta{flex:1}
+    .meta h3{margin:0;font-size:16px}
+    .meta p{margin:6px 0;color:var(--muted);font-size:13px}
+    .meta .tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+    .tag{background:#f0f9ff;padding:6px 10px;border-radius:999px;font-size:12px;color:#0369a1;border:1px solid rgba(3,105,161,0.06)}
+    .actions{display:flex;gap:8px;align-items:center}
+
+    footer.note{margin-top:18px;color:var(--muted);font-size:13px;text-align:center}
+
+    .row{display:flex;gap:10px;align-items:center}
+    .muted{color:var(--muted)}
+    .pill{padding:8px 12px;border-radius:999px;background:linear-gradient(90deg,#fff,#f6fffa);font-weight:700;font-size:13px;border:1px solid rgba(0,0,0,0.04)}
+
+    @media (max-width:580px){.logo{display:none}}
+    input:focus, textarea:focus, select:focus, button:focus{outline:3px solid rgba(14,165,164,0.12)}
+
+    .map{height:120px;border-radius:10px;background:linear-gradient(180deg,#e6f7fb,#dff7f9);display:flex;align-items:center;justify-content:center;color:#055160;font-weight:700}
+    .status{padding:6px 8px;border-radius:8px;font-weight:700;font-size:12px}
+    .status.open{background:#ecfeff;color:#065f46}
+    .status.reserved{background:#fff7ed;color:#92400e}
+    .empty{padding:20px;border-radius:10px;text-align:center;background:linear-gradient(180deg,#fff,#fbfcff);color:var(--muted)}
+
+    .hero-cta{display:flex;gap:10px;margin-left:auto}
+
+    /* subtle footer */
+    .mini-foot{margin-top:14px;color:var(--muted);font-size:12px;text-align:center}
+
+  </style>
+</head>
+<body>
+  <div class="container" role="main">
+    <header>
+      <div class="brand" aria-hidden="false">
+        <div class="logo" aria-hidden="true">SS</div>
+        <div>
+          <h1>SurplusShare</h1>
+          <p class="lead">Rescue surplus food — connect restaurants with donors & buyers in real time.</p>
+        </div>
+      </div>
+      <div class="row">
+        <span class="pill" id="countOpen">0 active offers</span>
+        <button class="ghost" id="demoFill">Fill demo data</button>
+      </div>
+    </header>
+
+    <div class="hero" role="region" aria-label="Hero banner">
+      <div class="bg"></div>
+      <div class="overlay">
+        <div>
+          <h2>Turn surplus meals into good deeds — fast</h2>
+          <p>Post leftover meals, set pickup details, and let nearby charities or buyers claim them instantly.</p>
+        </div>
+        <div class="hero-cta">
+          <button id="postNow">Post surplus</button>
+          <button class="ghost" id="learnMore">How it works</button>
+        </div>
+      </div>
+    </div>
+
+    <section class="grid">
+      <!-- LEFT: form + filters -->
+      <aside>
+        <div class="card" aria-labelledby="post-heading">
+          <h2 id="post-heading" style="margin:0 0 8px">Post surplus (restaurant)</h2>
+          <p class="small">Restaurants can post unsold food quickly. Fill important pickup details below.</p>
+
+          <form id="postForm" autocomplete="off">
+            <label for="rName">Restaurant name</label>
+            <input id="rName" type="text" placeholder="e.g., Green Plate" required />
+
+            <label for="title">Item title</label>
+            <input id="title" type="text" placeholder="e.g., 20 veg meals" required />
+
+            <label for="qty">Quantity (meals/packets)</label>
+            <input id="qty" type="number" min="1" value="10" required />
+
+            <label for="imageUrl">Image URL (optional)</label>
+            <input id="imageUrl" type="text" placeholder="Paste an image URL to show a thumbnail" />
+
+            <label for="pick">Pickup by</label>
+            <input id="pick" type="datetime-local" />
+
+            <label for="loc">Location (address/area)</label>
+            <input id="loc" type="text" placeholder="Street, area, city" />
+
+            <label for="note">Notes (dietary, packaging)</label>
+            <textarea id="note" placeholder="e.g., vegan, packed in containers"></textarea>
+
+            <div style="display:flex;gap:8px;margin-top:12px">
+              <button type="submit">Post surplus</button>
+              <button type="button" class="ghost" id="clearForm">Clear</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="card" style="margin-top:12px">
+          <h3 style="margin:0 0 6px">Find & filter</h3>
+          <div class="small">Search by title, restaurant, or area. Filter by pickup time.</div>
+
+          <label for="q">Search</label>
+          <input id="q" class="search" type="text" placeholder="Search offers" />
+
+          <div style="display:flex;gap:8px;margin-top:10px">
+            <select id="timeFilter">
+              <option value="any">Any pickup time</option>
+              <option value="soon">Within 2 hours</option>
+              <option value="today">Today</option>
+              <option value="expired">Expired</option>
+            </select>
+            <select id="sortBy">
+              <option value="new">Newest</option>
+              <option value="soonest">Soonest pickup</option>
+              <option value="qty">Largest quantity</option>
+            </select>
+          </div>
+          <div style="margin-top:10px;display:flex;gap:8px">
+            <button id="applyFilters" class="ghost">Apply</button>
+            <button id="resetFilters" class="ghost">Reset</button>
+          </div>
+
+        </div>
+
+        <div class="card" style="margin-top:12px">
+          <h3 style="margin:0 0 6px">Map (placeholder)</h3>
+          <div class="map" role="img" aria-label="Map placeholder">Map preview</div>
+          <p class="small" style="margin-top:8px">Tip: integrate Google Maps or OpenStreetMap for production addresses.</p>
+        </div>
+
+      </aside>
+
+      <!-- RIGHT: list of offers -->
+      <main>
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <h2 style="margin:0">Available surplus</h2>
+            <div class="controls">
+              <input id="quickSearch" type="text" placeholder="Quick search" style="padding:10px;border-radius:10px;border:1px solid #e6e9ef;" />
+              <button id="refresh" class="ghost">Refresh</button>
+            </div>
+          </div>
+
+          <div id="list" class="list" aria-live="polite" style="margin-top:12px">
+            <!-- items inserted here -->
+          </div>
+
+          <div id="empty" class="empty" style="display:none;margin-top:12px">No active offers. Restaurants can add surplus using the form.</div>
+
+          <footer class="note">SurplusShare is a demo prototype — for production add authentication, moderation, and secure pickup coordination.</footer>
+        </div>
+
+        <div style="height:18px"></div>
+
+        <div class="card">
+          <h3 style="margin-top:0">Admin / Donation center</h3>
+          <p class="small">Reserve an offer to arrange pickup or claim items for donation.</p>
+          <div class="small" style="margin-top:8px">Reservations will mark items as reserved and contact details will be shown to the poster in production.</div>
+        </div>
+
+      </main>
+
+    </section>
+
+    <div class="mini-foot">Made with ♥ — SurplusShare demo. Images via Unsplash for demo purposes.</div>
+  </div>
+
+  <script>
+    /* --- Enhanced single-file app ---
+       Data model stored in localStorage under key 'surplusshare.offers'
+       Offer: {id, restaurant, title, qty, pickup (ISO), location, note, image, createdISO, status: 'open'|'reserved'|'picked', reservedBy}
+    */
+
+    const STORAGE_KEY = 'surplusshare.offers'
+
+    function uid(len=8){return Math.random().toString(36).slice(2,2+len)}
+    function nowISO(){return new Date().toISOString()}
+
+    function loadOffers(){
+      try{const raw=localStorage.getItem(STORAGE_KEY);return raw?JSON.parse(raw):[] }catch(e){console.error(e);return[]}
+    }
+    function saveOffers(a){localStorage.setItem(STORAGE_KEY,JSON.stringify(a))}
+
+    const listEl = document.getElementById('list')
+    const emptyEl = document.getElementById('empty')
+    const countOpen = document.getElementById('countOpen')
+
+    function formatDate(iso){ if(!iso) return '—'; const d=new Date(iso); return d.toLocaleString() }
+
+    function renderOffers(filter={}){
+      const q = (document.getElementById('q').value||'').toLowerCase()
+      const quick = (document.getElementById('quickSearch').value||'').toLowerCase()
+      const tf = document.getElementById('timeFilter').value
+      const sortBy = document.getElementById('sortBy').value
+
+      let offers = loadOffers()
+
+      // filtering
+      offers = offers.filter(o=>{
+        if(q){ const hay = (o.title+' '+o.restaurant+' '+(o.location||'')).toLowerCase(); if(!hay.includes(q)) return false }
+        if(quick){ const hay = (o.title+' '+o.restaurant+' '+(o.location||'')).toLowerCase(); if(!hay.includes(quick)) return false }
+        if(tf==='soon'){
+          const cutoff = Date.now() + 2*60*60*1000
+          if(!o.pickup) return false
+          if(new Date(o.pickup).getTime()>cutoff) return false
+        }
+        if(tf==='today'){
+          if(!o.pickup) return false
+          const d=new Date(o.pickup); const today=new Date(); if(d.toDateString()!==today.toDateString()) return false
+        }
+        if(tf==='expired'){
+          if(!o.pickup) return false
+          if(new Date(o.pickup).getTime()>=Date.now()) return false
+        }
+        return true
+      })
+
+      // sort
+      offers.sort((a,b)=>{
+        if(sortBy==='new') return new Date(b.createdISO)-new Date(a.createdISO)
+        if(sortBy==='soonest'){
+          if(!a.pickup) return 1; if(!b.pickup) return -1
+          return new Date(a.pickup)-new Date(b.pickup)
+        }
+        if(sortBy==='qty') return (b.qty||0)-(a.qty||0)
+        return 0
+      })
+
+      // update count (show total open offers overall, not just filtered)
+      const allOffers = loadOffers();
+      const openCount = allOffers.filter(o=>o.status==='open').length
+      countOpen.textContent = openCount + ' active offers'
+
+      listEl.innerHTML=''
+      if(offers.length===0){ emptyEl.style.display='block'; return }
+      emptyEl.style.display='none'
+
+      offers.forEach(o=>{
+        const item = document.createElement('article'); item.className='item'; item.setAttribute('tabindex','0')
+        const thumb = document.createElement('div'); thumb.className='thumb';
+        thumb.style.backgroundImage = `url('${o.image || 'https://static.toiimg.com/thumb/imgsize-23456,msid-112353618,width-600,resizemode-4/112353618.jpg'}')`
+
+        const meta = document.createElement('div'); meta.className='meta'
+        const h = document.createElement('h3'); h.textContent = o.title + ' • ' + (o.qty||0) + ' pcs'
+        const p = document.createElement('p'); p.innerHTML = `<strong>${o.restaurant}</strong> • ${o.location || 'Location not specified'}<br/>Pickup by: ${formatDate(o.pickup)} • Posted: ${formatDate(o.createdISO)}`
+        const tags = document.createElement('div'); tags.className='tags'
+        const status = document.createElement('span'); status.className='status ' + (o.status==='open'?'open':'reserved'); status.textContent = o.status.toUpperCase()
+        const tagLoc = document.createElement('span'); tagLoc.className='tag'; tagLoc.textContent = o.location || '—'
+        const tagNote = document.createElement('span'); tagNote.className='tag'; tagNote.textContent = (o.note||'').slice(0,28) || 'No notes'
+        tags.appendChild(tagLoc); tags.appendChild(tagNote)
+
+        meta.appendChild(h); meta.appendChild(p); meta.appendChild(tags)
+
+        const actions = document.createElement('div'); actions.className='actions'
+        if(o.status==='open'){
+          const btnReserve = document.createElement('button'); btnReserve.textContent='Reserve'; btnReserve.onclick = ()=>reserveOffer(o.id)
+          const btnDetails = document.createElement('button'); btnDetails.className='ghost'; btnDetails.textContent='Details'; btnDetails.onclick = ()=>showDetails(o.id)
+          actions.appendChild(btnReserve); actions.appendChild(btnDetails)
+        } else {
+          const btnPicked = document.createElement('button'); btnPicked.className='ghost'; btnPicked.textContent='Mark picked'; btnPicked.onclick=()=>markPicked(o.id)
+          const btnCancel = document.createElement('button'); btnCancel.className='ghost'; btnCancel.textContent='Cancel reservation'; btnCancel.onclick=()=>cancelReservation(o.id)
+          actions.appendChild(btnPicked); actions.appendChild(btnCancel)
+        }
+
+        item.appendChild(thumb); item.appendChild(meta); item.appendChild(actions)
+        listEl.appendChild(item)
+      })
+    }
+
+    function addOffer(payload){
+      const offers = loadOffers(); offers.push(payload); saveOffers(offers); renderOffers();
+    }
+
+    function reserveOffer(id){
+      const offers = loadOffers(); const o = offers.find(x=>x.id===id); if(!o) return alert('Offer not found')
+      if(o.status!=='open') return alert('Offer is not open')
+      const name = prompt('Your name or organization (to reserve)')
+      if(!name) return
+      o.status='reserved'; o.reservedBy = name; saveOffers(offers); renderOffers();
+      alert('Reserved — contact details for pickup will be shown to the poster in production.')
+    }
+
+    function cancelReservation(id){
+      const offers = loadOffers(); const o = offers.find(x=>x.id===id); if(!o) return
+      if(!confirm('Cancel reservation?')) return
+      o.status='open'; o.reservedBy = null; saveOffers(offers); renderOffers();
+    }
+
+    function markPicked(id){
+      const offers = loadOffers(); const o = offers.find(x=>x.id===id); if(!o) return
+      if(!confirm('Mark as picked up?')) return
+      o.status='picked'; saveOffers(offers); renderOffers();
+    }
+
+    function showDetails(id){
+      const offers = loadOffers(); const o = offers.find(x=>x.id===id); if(!o) return
+      const lines = [`Title: ${o.title}`,'','Restaurant: '+o.restaurant,'Quantity: '+o.qty,'Location: '+(o.location||'—'),'Pickup by: '+formatDate(o.pickup),'Notes: '+(o.note||'—'),'Status: '+o.status]
+      if(o.image) lines.splice(1,0,'Image: ' + o.image)
+      alert(lines.join('\n'))
+    }
+
+    document.getElementById('postForm').addEventListener('submit',e=>{
+      e.preventDefault()
+      const restaurant = document.getElementById('rName').value.trim()
+      const title = document.getElementById('title').value.trim()
+      const qty = Number(document.getElementById('qty').value)
+      const image = document.getElementById('imageUrl').value.trim() || null
+      const pickup = document.getElementById('pick').value || null
+      const location = document.getElementById('loc').value.trim()
+      const note = document.getElementById('note').value.trim()
+      if(!restaurant || !title || !qty){ alert('Please fill required fields'); return }
+      const offer = {id: uid(10), restaurant, title, qty, pickup, location, note, image, createdISO: nowISO(), status:'open', reservedBy:null}
+      addOffer(offer)
+      document.getElementById('postForm').reset();
+      alert('Offer posted!')
+    })
+
+    document.getElementById('clearForm').addEventListener('click',()=>document.getElementById('postForm').reset())
+    document.getElementById('applyFilters').addEventListener('click',()=>renderOffers())
+    document.getElementById('resetFilters').addEventListener('click',()=>{document.getElementById('q').value='';document.getElementById('timeFilter').value='any';document.getElementById('sortBy').value='new';renderOffers()})
+    document.getElementById('refresh').addEventListener('click',()=>renderOffers())
+    document.getElementById('quickSearch').addEventListener('input',()=>renderOffers())
+
+    document.getElementById('demoFill').addEventListener('click',()=>{
+      const demo = [
+        {id:uid(6),restaurant:'Green Plate',title:'Veg meals (boxed)',qty:20,pickup:new Date(Date.now()+90*60000).toISOString(),location:'MG Road, City',note:'Vegan-safe',createdISO:nowISO(),status:'open',image:'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=800&auto=format&fit=crop&ixlib=rb-4.0.3&s=9b9b9f3a3a6a1b2a3c4d5e6f7a8b9c0d'},
+        {id:uid(6),restaurant:'Ocean Bites',title:'Seafood platters',qty:8,pickup:new Date(Date.now()+5*60*60000).toISOString(),location:'Harbor Area',note:'Keep refrigerated',createdISO:nowISO(),status:'open',image:'https://images.unsplash.com/photo-1543353071-087092ec3930?q=80&w=800&auto=format&fit=crop&ixlib=rb-4.0.3&s=7e3b2f9b2f3a1c4d5e6f7a8b9c0d1e2f'},
+        {id:uid(6),restaurant:'Cafe Noon',title:'Pastry assortment',qty:30,pickup:null,location:'Downtown',note:'Assorted, contains nuts',createdISO:nowISO(),status:'open',image:'https://images.unsplash.com/photo-1512058564366-c9e3f4f1f4f2?q=80&w=800&auto=format&fit=crop&ixlib=rb-4.0.3&s=3a2b1c4d5e6f7a8b9c0d1e2f3a4b5c6d'}
+      ]
+      saveOffers(demo); renderOffers();
+    })
+
+    // button jump to form
+    document.getElementById('postNow').addEventListener('click', ()=>{ document.getElementById('rName').focus(); window.scrollTo({top:300,behavior:'smooth'}) })
+    document.getElementById('learnMore').addEventListener('click', ()=>alert('How it works:\n1) Post surplus with pickup details. 2) Nearby centers reserve. 3) Coordinate pickup.'))
+
+    window.addEventListener('storage',e=>{ if(e.key===STORAGE_KEY) renderOffers() })
+
+    if(!localStorage.getItem(STORAGE_KEY)){
+      renderOffers()
+    } else renderOffers()
+
+    window.addEventListener('keydown', (e)=>{
+      if(e.key==='n' && (e.ctrlKey||e.metaKey)){ e.preventDefault(); document.getElementById('rName').focus() }
+    })
+
+    document.getElementById('pick').addEventListener('change', ()=>{
+      const v=document.getElementById('pick').value; if(!v) return
+      const t=new Date(v).getTime(); if(isNaN(t)) return
+      if(t < Date.now()-60*1000) alert('Selected pickup time is in the past.')
+    })
+  </script>
+
+</body>
+</html>
